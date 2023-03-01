@@ -145,6 +145,8 @@ def state_check():
         # Updating MESIN
         MESIN[0][j] = RJ[i]
         try:
+            # Updating cj
+            CJ[i] += RJ[i]
             # Updating tj
             TJ[i] = PROCESSING_TIME[ST[i][0] - 1][ST[i][1]]
             # Updating st
@@ -154,17 +156,22 @@ def state_check():
             ST.pop(i - bias)
             CJ.pop(i - bias)
             bias += 1
-            
+        
+    print("bias",bias)
     # Updating cj
     # retval = [3, 1, 3] mewakili job3, yang1, mesin3
-    CJ[retval[0][0] - 1] += RJ[retval[0][0] - 1]
-    TJ[retval[0][0] - 1] = PROCESSING_TIME[retval[0][0] - 1][ST[retval[0][0] - 1][1] - 1]
+    """ CJ[retval[0][0] - 1] += RJ[retval[0][0] - 1]
+    TJ[retval[0][0] - 1] = PROCESSING_TIME[retval[0][0] - 1][ST[retval[0][0] - 1][1] - 1] """
     # ST[retval[0][0] - 1][1] += 1
-    RJ = [0 for i in range(len(ROUTING))]
-    for i in range (len(ROUTING)):
+    """ print("cj",CJ)
+    print("tj",TJ)
+    # print("rj",RJ)
+    print("st",ST) """
+    RJ = [0 for i in range(len(ST))]
+    for i in range (len(ST)):
         RJ[i] = CJ[i] + TJ[i]
 
-    return retval
+    return ST
 
 # Print makeform and schedule to string form in the console
 def print_schedule(schedule=SCHEDULE, lateness=None):
@@ -195,10 +202,10 @@ print("pt",PROCESSING_TIME)
 print("r",ROUTING)
 print("m",MESIN)
 # state_check()
-while state_check() != None:
+while state_check() != []:
     pass
 print('---- Semua job telah selesai ----')
-# print_schedule()
+print_schedule()
 # cj, tj, rj, st = state_check()
 """ print("Hasil state check")
 print("cj", cj)
