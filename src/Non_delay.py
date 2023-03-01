@@ -86,20 +86,26 @@ def define_id(i, j, k):
     return ID
     
 # 3. Ekekusi time
-def state_check():
+def state_check(count):
     global MESIN, JOB_DONE, SCHEDULE, CJ, TJ, RJ, ST
+    print("seconds : ",count)
     print("cj",CJ)
     print("tj",TJ)
     print("rj",RJ)
     print("st",ST)
+    print("MESIN",MESIN)
+    
+    print("============================")
     
     # e. Menentukan nilai cj terkecil, job dengan cj terkecil akan diproses duluan
     min_c = min(CJ)
     
     # f. Kalo misal ada lebih dari 1 yang punya nilai minimum itu, kita handle
     if CJ.count(min_c) > 1:
+        print("adaberapa?",CJ.count(min_c))
         # Bikin list yang isinya semua job yang punya nilai min_c
         index_c_in_cj = [i for i in range(len(CJ)) if CJ[i] == min_c]
+        print("indeiks",index_c_in_cj)
 
         # Cek nilai rj dan pilih yang mempunyai nilai rj terkecil
         # Prioritasin yang jumlah operasinya masih banyak
@@ -117,7 +123,8 @@ def state_check():
                     temp_list[index_mac] = ST[i]
                 elif ST[i][1] < temp_list[index_mac][1]:
                     temp_list[index_mac] = ST[i]
-
+                    
+        print("cekie",temp_list, machine_list)
         # sehkarang temp_list isinya job yang mau dijalankan
         retval = temp_list
 
@@ -156,20 +163,21 @@ def state_check():
             ST.pop(i - bias)
             CJ.pop(i - bias)
             bias += 1
+            
+    print("cj updated", CJ)
         
-    print("bias",bias)
-    # Updating cj
+    # Updating cj kalo overdua
     # retval = [3, 1, 3] mewakili job3, yang1, mesin3
-    """ CJ[retval[0][0] - 1] += RJ[retval[0][0] - 1]
-    TJ[retval[0][0] - 1] = PROCESSING_TIME[retval[0][0] - 1][ST[retval[0][0] - 1][1] - 1] """
-    # ST[retval[0][0] - 1][1] += 1
-    """ print("cj",CJ)
-    print("tj",TJ)
-    # print("rj",RJ)
-    print("st",ST) """
+    """ print("strv2",retval,TEMP_ST)
+    for i in range (len(retval)):
+        if retval[i] != TEMP_ST and count + 1 == CJ[ST.index(value)]:
+            CJ[i] += 1 """
+                
     RJ = [0 for i in range(len(ST))]
     for i in range (len(ST)):
         RJ[i] = CJ[i] + TJ[i]
+        
+    print("----------------------------")
 
     return ST
 
@@ -202,7 +210,9 @@ print("pt",PROCESSING_TIME)
 print("r",ROUTING)
 print("m",MESIN)
 # state_check()
-while state_check() != []:
+count = 0
+while state_check(count) != []:
+    count += 1
     pass
 print('---- Semua job telah selesai ----')
 print_schedule()
