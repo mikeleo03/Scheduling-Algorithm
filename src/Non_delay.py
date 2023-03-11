@@ -1,25 +1,21 @@
-# Implementasi algoritma Non-delay
-# 0.1. Impor modul eksternal
-from datetime import datetime
-import time
-import calendar
+# Implementasi Algoritma Penjadwalan Non-delay
+# 1. Impor modul eksternal
 import csv
 
-# 0.2. Definisi variabel global
+# 2. Definisi variabel global
 ROUTING = []
 PROCESSING_TIME = []
 MESIN = []
 JOB_DONE = []
 SCHEDULE = []
 
-# 1. Prosedur untuk melakukan pembacaan data dari file
+# 3. Prosedur untuk melakukan pembacaan data dari file
 def read_data():
     # Menggunakan variabel global
     global ROUTING, PROCESSING_TIME, MESIN
     print("Sedang membaca data...")
 
-    # Pembacaan data mesin dari file
-    # Exception handling
+    # Pembacaan data mesin dari file dan exception handling
     try:
         mesin_file = open(f"test/Mesin.txt", "r")
     except:
@@ -79,156 +75,128 @@ def read_data():
             ROUTING.append(row)
             
     print("Data time dan routing berhasil dibaca!")
-
-# 2. Defining ID of process
-def define_id(i, j, k):
-    ID = str(i) + str(j) + str(k)
-    return ID
     
-# 3. Ekekusi time
-def state_check(count):
+# 4. Prosedur Eksekusi
+def state_check():
+    # xx. Menggunakan variabel global
     global MESIN, JOB_DONE, SCHEDULE, CJ, TJ, RJ, ST
-    print("seconds : ",count)
-    print("cj",CJ)
-    print("tj",TJ)
-    print("rj",RJ)
-    print("st",ST)
-    print("MESIN",MESIN)
-    
-    print("============================")
-    
-    # e. Menentukan nilai cj terkecil, job dengan cj terkecil akan diproses duluan
+
+    # a. Mengambil nilai cj terkecil dari data masukan, job dengan cj terkecil akan diproses duluan
     min_c = min(CJ)
     
-    temp_list = []  # temporary list
+    # b. Inisiasi senarai temporari
+    temp_list = []
     
-    # f. Kalo misal ada lebih dari 1 yang punya nilai minimum itu, kita handle
+    # c. Kalau misal ada lebih dari 1 yang punya nilai minimum, digunakan skema penanganan
     if CJ.count(min_c) > 1:
-        print("adaberapa?",CJ.count(min_c))
-        # Bikin list yang isinya semua job yang punya nilai min_c
+        # Inisiasi senarai yang berisi semua job dengan nilai min_c
         index_c_in_cj = [i for i in range(len(CJ)) if CJ[i] == min_c]
-        print("indeiks",index_c_in_cj)
 
         # Cek nilai rj dan pilih yang mempunyai nilai rj terkecil
-        # Prioritasin yang jumlah operasinya masih banyak
+        # Prioritaskan yang jumlah operasinya masih banyak
         machine_list = []  # machine list
 
         # Isi list dengan semua data yang ada di index_c_in_cj
         for i in index_c_in_cj:
+            # Kalau belum ada di machine list, tambahkan
             if len(temp_list) == 0 or ST[i][2] not in machine_list:
                 temp_list.append(ST[i])
                 machine_list.append(ST[i][2])
+            # Kalau sudah ada, lakukan filtering sesuai kriteria diatas
             elif ST[i][2] in machine_list:
-                index_mac = machine_list.index(ST[i][2]) #i
+                index_mac = machine_list.index(ST[i][2])
+                # Prioritas nilai rj
                 if (RJ[i] < RJ[ST.index(temp_list[index_mac])]):
                     temp_list[index_mac] = ST[i]
+                # Prioritas jumlah operasi
                 elif ST[i][1] < temp_list[index_mac][1]:
                     temp_list[index_mac] = ST[i]
                     
-        print("cekie",temp_list, machine_list)
-        # sehkarang temp_list isinya job yang mau dijalankan
+        # Sekarang temp_list isinya job yang mau dijalankan (dalam sebuah list)
         retval = temp_list
 
+    # Kalau tidak, kembalikan saja nilai st dari cj tersebut dalam sebuah list
     else:
         retval = [ST[CJ.index(min_c)]]
     
-    print("retval",retval)
-    # Index job value (?) 
+    # d. Melakukan indexing terhadap jadwal yang ada dan telah selesai
     for value in retval:
         i = ST.index(value)
         SCHEDULE.append([value[0], value[1], value[2], CJ[i], RJ[i]])
         if value[1] == 3:
             JOB_DONE.append([value[0], RJ[i]])
 
+    # e. Lanjutan pemrosesan indexing untuk dikemas dalam senarai job dan machine
     index_job = [ST.index(i) for i in retval]
     index_mac = [i[2] - 1 for i in retval]
     
-    print("idx_job, idx_mach",index_job, index_mac)
-
+    # f. Melakukan penyalinan nilai st dan cj untuk digunakan lebih lanjut pada bagian bawah
     COPY_OF_ST = [i for i in ST]
     COPY_OF_CJ = [i for i in CJ]
     
+    # g. Melakukan perubahan terhadap nilai isi mesin, tj dan st
+    # bias untuk membantu skema penghapusan berdasar indeks
     bias = 0
-    
-    print("older cj, st",CJ, ST)
-    print("len borth", len(CJ), len(COPY_OF_CJ))
-
     for i, j in zip(index_job, index_mac):
-        # Updating MESIN
+        # Memperbaharui nilai MESIN
         MESIN[0][j] = RJ[i]
         try:
-            # Updating cj
-            # CJ[i] = RJ[i]
-            # Updating tj
+            # Memperbaharui nilai tj
             TJ[i] = PROCESSING_TIME[ST[i][0] - 1][ST[i][1]]
-            # Updating st
+            # Memperbaharui nilai st
             ST[i] = [ST[i][0], ST[i][1] + 1, ROUTING[ST[i][0] - 1][ST[i][1]]]
         except:
+            # Exception handling jika tidak ada, maka saatnya dihapus
             TJ.pop(i - bias)
             ST.pop(i - bias)
             CJ.pop(i - bias)
             bias += 1
-            
-    # index_job1 = [ST.index(i) for i in COPY_OF_ST]
-    """ index_job1 = []
-    for i in COPY_OF_ST:
-        try :
-            index_job1.append(ST.index(i))
-        except :
-            continue """
-    
-    print("old cj, st",CJ, ST)
-    # Updating the cj
+
+    # h. Memperbaharui nilai cj pada COPY_OF_CJ (salinan cj)
     for i in range(len(COPY_OF_ST)):
         try:
+            # Jika nilai iterator berada pada index_job,
+            # maka update dengan nilai data proses selanjutnya, lakukan perbandingan dengan
+            # nilai proses pada mesin
             if i in index_job:
                 ready_time = MESIN[0][ST[i][2] - 1]
                 recent_rjx = RJ[i]
-                # print("rd, rcnt",ready_time, recent_rjx)
                 if COPY_OF_ST[i][1] != len(COPY_OF_ST[0]):
                     if ready_time > recent_rjx:
                         COPY_OF_CJ[i] = ready_time
                     else :
                         COPY_OF_CJ[i] = recent_rjx
+            # Jika tidak ada, lakukan pembaharuan dengan nilai yang ada di mesin
+            # Mengingat tidak ada job yang saling overlap
             else :
-                print(i)
-                print("mesin", MESIN[0][COPY_OF_ST[i][2] - 1])
                 if (COPY_OF_CJ[i] <= MESIN[0][COPY_OF_ST[i][2] - 1]):
                     COPY_OF_CJ[i] = MESIN[0][COPY_OF_ST[i][2] - 1]
         except:
+            # Exception handling, skip jika tidak memenuhi kondisi diatas
             continue
         
-    print("latestcopy",COPY_OF_CJ)
-    
+    # i. Pembahruan terhadap nilai cj berdasar pemrosesan COPY_OF_CJ dan COPY_OF_ST
+    # dilakukan hanya jika panjang keduanya sudah beda (akibat proses penghapusan)
     if (len(CJ) < len(COPY_OF_CJ)):
         for i in range(len(COPY_OF_CJ) - 1, -1, -1):
+            # Proses penyesuaian dengan cj yang sudah baru dengan menghapus
             if i in index_job and COPY_OF_ST[i][1] == len(COPY_OF_ST[0]):
-                print(i)
                 COPY_OF_CJ.pop(i)
             else :
                 continue
-            
+    
+    # Penyalinan kembali nilai cj yang telah diperbaharui
     CJ = COPY_OF_CJ
-                    
-    print("cj, st", CJ, ST)
-        
-    # Updating cj kalo overdua
-    # retval = [3, 1, 3] mewakili job3, yang1, mesin3
-    """ print("strv2",retval,TEMP_ST)
-    for i in range (len(retval)):
-        if retval[i] != TEMP_ST and count + 1 == CJ[ST.index(value)]:
-            CJ[i] += 1 """
      
-    # Updating rj
+    # j. Pembaharuan terhadap nilai rj
     RJ = [0 for i in range(len(ST))]
     for i in range (len(ST)):
         RJ[i] = CJ[i] + TJ[i]           
-        
-    print("----------------------------")
 
+    # k. Pengembalian nilai ST apakah sudah kosong (semua job sudah diproses)
     return ST
 
-# Print makeform and schedule to string form in the console
+# 5. Melakukan pencetakan form hasil pemrosesan ke terminal
 def print_schedule(schedule=SCHEDULE, lateness=None):
     global PROCESSING_TIME
     makespan = max(schedule, key=lambda x: x[4])[4]
@@ -241,33 +209,34 @@ def print_schedule(schedule=SCHEDULE, lateness=None):
         if lateness is not None:
             print(f"Earliness: {round(lateness[i],2) * -1}" if lateness[i] <= 0 else f"Tardiness: {round(lateness[i],2)}")
     print(f'---\nmakespan: {round(makespan,2)}')
+
+# 6. Program utama
+if __name__ == '__main__':
+    # xx. Membaca data
+    read_data()
     
-read_data()
-# a. Mendefinisikan posisi melalui routing
-CJ = [MESIN[0][ROUTING[i][0] - 1] for i in range(len(ROUTING))]
-# b. Mendefinisikan waktu pemrosesan
-TJ = [PROCESSING_TIME[i][0] for i in range(len(ROUTING))]
-# c. Mendefinisikan waktu berakhir
-RJ = [0 for i in range(len(ROUTING))]
-for i in range (len(ROUTING)):
-    RJ[i] = CJ[i] + TJ[i]
-# d. Mendefinisikan id st (job, operasi, mesin)
-ST = [[i + 1, 1, ROUTING[i][0]] for i in range(len(ROUTING))]
-print("pt",PROCESSING_TIME)
-print("r",ROUTING)
-print("m",MESIN)
-# state_check()
-count = 0
-while state_check(count) != []:
-    count += 1
-    pass
-print('---- Semua job telah selesai ----')
-print_schedule()
-# cj, tj, rj, st = state_check()
-""" print("Hasil state check")
-print("cj", cj)
-print("tj", tj)
-print("rj", rj)
-print("st", st) """
-print(SCHEDULE)
-print(JOB_DONE)
+    # a. Mendefinisikan posisi melalui routing
+    CJ = [MESIN[0][ROUTING[i][0] - 1] for i in range(len(ROUTING))]
+    
+    # b. Mendefinisikan waktu pemrosesan
+    TJ = [PROCESSING_TIME[i][0] for i in range(len(ROUTING))]
+    
+    # c. Mendefinisikan waktu berakhir
+    RJ = [0 for i in range(len(ROUTING))]
+    for i in range (len(ROUTING)):
+        RJ[i] = CJ[i] + TJ[i]
+        
+    # d. Mendefinisikan id st (job, operasi, mesin)
+    ST = [[i + 1, 1, ROUTING[i][0]] for i in range(len(ROUTING))]
+
+    # e. Melakukan pemrosesan pembuatan jadwal
+    # Proses selesai dilaksanakan jika semua job selesai terjadwal
+    print("Pemrosesan sedang dilakukan...")
+    while state_check() != []:
+        pass
+    
+    # f. Semua job seledai dan hasil dicetak pada terminal
+    print('\n---- Semua job telah selesai ----')
+    print_schedule()
+
+input("\nPress Enter to Exit")
