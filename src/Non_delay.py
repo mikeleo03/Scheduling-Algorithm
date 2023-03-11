@@ -100,6 +100,8 @@ def state_check(count):
     # e. Menentukan nilai cj terkecil, job dengan cj terkecil akan diproses duluan
     min_c = min(CJ)
     
+    temp_list = []  # temporary list
+    
     # f. Kalo misal ada lebih dari 1 yang punya nilai minimum itu, kita handle
     if CJ.count(min_c) > 1:
         print("adaberapa?",CJ.count(min_c))
@@ -109,7 +111,6 @@ def state_check(count):
 
         # Cek nilai rj dan pilih yang mempunyai nilai rj terkecil
         # Prioritasin yang jumlah operasinya masih banyak
-        temp_list = []  # temporary list
         machine_list = []  # machine list
 
         # Isi list dengan semua data yang ada di index_c_in_cj
@@ -142,7 +143,7 @@ def state_check(count):
     index_job = [ST.index(i) for i in retval]
     index_mac = [i[2] - 1 for i in retval]
     
-    print(index_job, index_mac)
+    print("idx_job, idx_mach",index_job, index_mac)
 
     COPY_OF_ST = [i for i in ST]
     
@@ -153,7 +154,7 @@ def state_check(count):
         MESIN[0][j] = RJ[i]
         try:
             # Updating cj
-            CJ[i] += RJ[i]
+            # CJ[i] = RJ[i]
             # Updating tj
             TJ[i] = PROCESSING_TIME[ST[i][0] - 1][ST[i][1]]
             # Updating st
@@ -163,8 +164,25 @@ def state_check(count):
             ST.pop(i - bias)
             CJ.pop(i - bias)
             bias += 1
-            
-    print("cj updated", CJ)
+    
+    print(len(ST))
+    for i in range(len(ST)):
+        if i in index_job:
+            try:
+                ready_time = MESIN[0][ST[i][2] - 1]
+                recent_rjx = RJ[i]
+                print("rd, rcnt",ready_time, recent_rjx)
+                if COPY_OF_ST[i][1] != 3:
+                    if ready_time > recent_rjx:
+                        CJ[i] = ready_time
+                    else :
+                        CJ[i] = recent_rjx
+            except:
+                continue
+        else :
+            CJ[i] += 1
+         
+    print("cj, st", CJ, ST)
         
     # Updating cj kalo overdua
     # retval = [3, 1, 3] mewakili job3, yang1, mesin3
@@ -172,10 +190,11 @@ def state_check(count):
     for i in range (len(retval)):
         if retval[i] != TEMP_ST and count + 1 == CJ[ST.index(value)]:
             CJ[i] += 1 """
-                
+     
+     # Updating rj
     RJ = [0 for i in range(len(ST))]
     for i in range (len(ST)):
-        RJ[i] = CJ[i] + TJ[i]
+        RJ[i] = CJ[i] + TJ[i]           
         
     print("----------------------------")
 
