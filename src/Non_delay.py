@@ -146,8 +146,12 @@ def state_check(count):
     print("idx_job, idx_mach",index_job, index_mac)
 
     COPY_OF_ST = [i for i in ST]
+    COPY_OF_CJ = [i for i in CJ]
     
     bias = 0
+    
+    print("older cj, st",CJ, ST)
+    print("len borth", len(CJ), len(COPY_OF_CJ))
 
     for i, j in zip(index_job, index_mac):
         # Updating MESIN
@@ -164,24 +168,48 @@ def state_check(count):
             ST.pop(i - bias)
             CJ.pop(i - bias)
             bias += 1
+            
+    # index_job1 = [ST.index(i) for i in COPY_OF_ST]
+    """ index_job1 = []
+    for i in COPY_OF_ST:
+        try :
+            index_job1.append(ST.index(i))
+        except :
+            continue """
     
-    print(len(ST))
-    for i in range(len(ST)):
-        if i in index_job:
-            try:
+    print("old cj, st",CJ, ST)
+    # Updating the cj
+    for i in range(len(COPY_OF_ST)):
+        try:
+            if i in index_job:
                 ready_time = MESIN[0][ST[i][2] - 1]
                 recent_rjx = RJ[i]
-                print("rd, rcnt",ready_time, recent_rjx)
-                if COPY_OF_ST[i][1] != 3:
+                # print("rd, rcnt",ready_time, recent_rjx)
+                if COPY_OF_ST[i][1] != len(COPY_OF_ST[0]):
                     if ready_time > recent_rjx:
-                        CJ[i] = ready_time
+                        COPY_OF_CJ[i] = ready_time
                     else :
-                        CJ[i] = recent_rjx
-            except:
+                        COPY_OF_CJ[i] = recent_rjx
+            else :
+                print(i)
+                print("mesin", MESIN[0][COPY_OF_ST[i][2] - 1])
+                if (COPY_OF_CJ[i] <= MESIN[0][COPY_OF_ST[i][2] - 1]):
+                    COPY_OF_CJ[i] = MESIN[0][COPY_OF_ST[i][2] - 1]
+        except:
+            continue
+        
+    print("latestcopy",COPY_OF_CJ)
+    
+    if (len(CJ) < len(COPY_OF_CJ)):
+        for i in range(len(COPY_OF_CJ) - 1, -1, -1):
+            if i in index_job and COPY_OF_ST[i][1] == len(COPY_OF_ST[0]):
+                print(i)
+                COPY_OF_CJ.pop(i)
+            else :
                 continue
-        else :
-            CJ[i] += 1
-         
+            
+    CJ = COPY_OF_CJ
+                    
     print("cj, st", CJ, ST)
         
     # Updating cj kalo overdua
@@ -191,7 +219,7 @@ def state_check(count):
         if retval[i] != TEMP_ST and count + 1 == CJ[ST.index(value)]:
             CJ[i] += 1 """
      
-     # Updating rj
+    # Updating rj
     RJ = [0 for i in range(len(ST))]
     for i in range (len(ST)):
         RJ[i] = CJ[i] + TJ[i]           
