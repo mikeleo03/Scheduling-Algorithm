@@ -17,7 +17,7 @@ def read_data():
 
     # Pembacaan data mesin dari file dan exception handling
     try:
-        mesin_file = open(f"test/Mesin.txt", "r")
+        mesin_file = open(f"test2/Mesin.txt", "r")
     except:
         print(f"File Mesin.txt tidak ditemukan!")
         exit()
@@ -40,7 +40,7 @@ def read_data():
     for j in range(n_jobs):
         # Exception handling  
         try:
-            time_file = open(f"test/Job{j + 1}_Time.txt", "r")
+            time_file = open(f"test2/Job{j + 1}_Time.txt", "r")
         except:
             print(f"File Job{j + 1}_Time.txt tidak ditemukan!")
             exit()
@@ -58,7 +58,7 @@ def read_data():
 
         # Exception handling 
         try:
-            routing_file = open(f"test/Job{j + 1}_Routing.txt", "r")
+            routing_file = open(f"test2/Job{j + 1}_Routing.txt", "r")
         except:
             print(f"File Job{j + 1}_Routing.txt tidak ditemukan!")
             exit()
@@ -118,7 +118,7 @@ def state_check():
     # Kalau tidak, kembalikan saja nilai st dari cj tersebut dalam sebuah list
     else:
         retval = [ST[CJ.index(min_c)]]
-    
+        
     # d. Melakukan indexing terhadap jadwal yang ada dan telah selesai
     for value in retval:
         i = ST.index(value)
@@ -161,7 +161,7 @@ def state_check():
             if i in index_job:
                 ready_time = MESIN[0][ST[i][2] - 1]
                 recent_rjx = RJ[i]
-                if COPY_OF_ST[i][1] != len(COPY_OF_ST[0]):
+                if COPY_OF_ST[i][1] != len(ROUTING[COPY_OF_ST[i][0] - 1]):
                     if ready_time > recent_rjx:
                         COPY_OF_CJ[i] = ready_time
                     else :
@@ -180,14 +180,14 @@ def state_check():
     if (len(CJ) < len(COPY_OF_CJ)):
         for i in range(len(COPY_OF_CJ) - 1, -1, -1):
             # Proses penyesuaian dengan cj yang sudah baru dengan menghapus
-            if i in index_job and COPY_OF_ST[i][1] == len(COPY_OF_ST[0]):
+            if i in index_job and COPY_OF_ST[i][1] == len(ROUTING[COPY_OF_ST[i][0] - 1]):
                 COPY_OF_CJ.pop(i)
             else :
                 continue
     
     # Penyalinan kembali nilai cj yang telah diperbaharui
     CJ = COPY_OF_CJ
-     
+    
     # j. Pembaharuan terhadap nilai rj
     RJ = [0 for i in range(len(ST))]
     for i in range (len(ST)):
