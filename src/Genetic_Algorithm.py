@@ -123,8 +123,8 @@ def do_genetic_algo():
                 MESIN[0][ST[i][2] - 1] += PROCESSING_TIME[job - 1][ST[i][1] - 1]
                 temp_list.append(ST[i])
             print ("ST, MESIN", ST, MESIN)
+            
         elif (ST[i][2] >= 5 and ST[i][2] <= 6):
-            print("ehsini1")
             minimum = MESIN[0][4]
             idx_mesin = 4
             for j in range (4, 5):
@@ -140,6 +140,7 @@ def do_genetic_algo():
                 MESIN[0][ST[i][2] - 1] += PROCESSING_TIME[job - 1][ST[i][1] - 1]
                 temp_list.append(ST[i])
             print ("ST, MESIN", ST, MESIN)
+            
         else :
             # Prioritas nilai rj
             if (RJ[i] < RJ[ST.index(temp_list[index_mac])]):
@@ -166,7 +167,7 @@ def do_genetic_algo():
         instance.append(retval[i][1])
         machine.append(retval[i][2])
         
-    print("job, retval", job, machine)
+    print("job, mach", job, machine)
     job_on_ST = []
     # print("ST", ST)
     for i in range (len(ST)):
