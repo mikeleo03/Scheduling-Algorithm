@@ -82,84 +82,82 @@ def do_genetic_algo():
     global MESIN, JOB_DONE, SCHEDULE, CJ, TJ, RJ, ST
 
     # a. Mengambil nilai cj terkecil dari data masukan, job dengan cj terkecil akan diproses duluan
-    min_c = min(CJ)
+    # min_c = min(CJ)
     
     # b. Inisiasi senarai temporari
     temp_list = []
     
     # c. Kalau misal ada lebih dari 1 yang punya nilai minimum, digunakan skema penanganan
-    if CJ.count(min_c) > 1:
-        # Inisiasi senarai yang berisi semua job dengan nilai min_c
-        index_c_in_cj = [i for i in range(len(CJ)) if CJ[i] == min_c]
+    # if CJ.count(min_c) > 1:
+    # Inisiasi senarai yang berisi semua job dengan nilai min_c
+    index_c_in_cj = [i for i in range(len(CJ))]
 
-        # Cek nilai rj dan pilih yang mempunyai nilai rj terkecil
-        # Prioritaskan yang jumlah operasinya masih banyak
-        machine_list = []  # machine list
+    # Cek nilai rj dan pilih yang mempunyai nilai rj terkecil
+    # Prioritaskan yang jumlah operasinya masih banyak
+    machine_list = []  # machine list
 
-        # Isi list dengan semua data yang ada di index_c_in_cj
-        for i in index_c_in_cj:
-            # Kalau belum ada di machine list, tambahkan
-            if len(temp_list) == 0 or ST[i][2] not in machine_list:
+    # Isi list dengan semua data yang ada di index_c_in_cj
+    for i in index_c_in_cj :
+        # temp_list.append(ST[i])
+        machine_list.append(ST[i][2])
+        
+    for i in index_c_in_cj:
+        index_mac = machine_list.index(ST[i][2])
+        job = ST[i][0]
+        # Kalo mesinnya kosong, atau bisa selesai lebih cepat, masukin di
+        # tempat yang memungkinkan, proses genetikasi
+        if (ST[i][2] >= 1 and ST[i][2] <= 4):
+            # print("ehsini1")
+            minimum = MESIN[0][0]
+            idx_mesin = 0
+            for j in range (4):
+                if (minimum > MESIN[0][j]):
+                    idx_mesin = j
+                    minimum = MESIN[0][j]
+                    
+            if (MESIN[0][ST[i][2] - 1] > minimum):
+                ST[job-1] = [job, ST[job-1][1], idx_mesin + 1]
+                MESIN[0][ST[i][2] - 1] += PROCESSING_TIME[job - 1][ST[i][1] - 1]
                 temp_list.append(ST[i])
-                machine_list.append(ST[i][2])
-                # print("masuk sini?", ST[i][2])
-                print("i, stvals", i, ST[i][2])
-                mach_on_ST = []
-                # print("ST", ST)
-                for k in range (len(ST)):
-                    mach_on_ST.append(ST[k][2])
-                k = mach_on_ST.index(ST[i][2])
-                MESIN[0][ST[i][2] - 1] = RJ[k]
-                print("ST", ST)
-            # Kalau sudah ada, lakukan filtering sesuai kriteria diatas
-            elif ST[i][2] in machine_list:
-                index_mac = machine_list.index(ST[i][2])
-                job = ST[i][0]
-                # Kalo mesinnya kosong, atau bisa selesai lebih cepat, masukin di
-                # tempat yang memungkinkan, proses genetikasi
-                if (ST[i][2] >= 1 and ST[i][2] <= 4):
-                    minimum = MESIN[0][0]
-                    idx_mesin = 0
-                    for j in range (4):
-                        if (minimum > MESIN[0][j]):
-                            idx_mesin = j
-                            minimum = MESIN[0][j]
-                            
-                    if (MESIN[0][ST[i][2] - 1] > minimum):
-                        ST[job-1] = [job, ST[job-1][1], idx_mesin + 1]
-                        temp_list.append(ST[job-1])
+            else :
+                MESIN[0][ST[i][2] - 1] += PROCESSING_TIME[job - 1][ST[i][1] - 1]
+                temp_list.append(ST[i])
+            print ("ST, MESIN", ST, MESIN)
+        elif (ST[i][2] >= 5 and ST[i][2] <= 6):
+            print("ehsini1")
+            minimum = MESIN[0][4]
+            idx_mesin = 4
+            for j in range (4, 5):
+                if (minimum > MESIN[0][j]):
+                    idx_mesin = j
+                    minimum = MESIN[0][j]
                     
-                    print ("ST", ST)
-                elif (ST[i][2] >= 5 and ST[i][2] <= 6):
-                    minimum = MESIN[0][4]
-                    idx_mesin = 0
-                    for j in range (4, 5):
-                        if (minimum > MESIN[0][j]):
-                            idx_mesin = j
-                            minimum = MESIN[0][j]
-                            
-                    if (MESIN[0][ST[i][2] - 1] > minimum):
-                        ST[i] = [job, ST[i][1], idx_mesin + 1]
-                        temp_list.append(ST[i])
-                else :
-                    # Prioritas nilai rj
-                    if (RJ[i] < RJ[ST.index(temp_list[index_mac])]):
-                        temp_list[index_mac] = ST[i]
-                    # Prioritas jumlah operasi
-                    elif ST[i][1] < temp_list[index_mac][1]:
-                        temp_list[index_mac] = ST[i]
-                        
-                MESIN[0][ST[i][2] - 1] = RJ[ST[i][2] - 1]
-                    
-        # Sekarang temp_list isinya job yang mau dijalankan (dalam sebuah list)
-        retval = temp_list
+            if (MESIN[0][ST[i][2] - 1] > minimum):
+                ST[i] = [job, ST[i][1], idx_mesin + 1]
+                MESIN[0][ST[i][2] - 1] += PROCESSING_TIME[job - 1][ST[i][1] - 1]
+                temp_list.append(ST[i])
+            else :
+                MESIN[0][ST[i][2] - 1] += PROCESSING_TIME[job - 1][ST[i][1] - 1]
+                temp_list.append(ST[i])
+            print ("ST, MESIN", ST, MESIN)
+        else :
+            # Prioritas nilai rj
+            if (RJ[i] < RJ[ST.index(temp_list[index_mac])]):
+                temp_list[index_mac] = ST[i]
+            # Prioritas jumlah operasi
+            elif ST[i][1] < temp_list[index_mac][1]:
+                temp_list[index_mac] = ST[i]
+                
+    # Sekarang temp_list isinya job yang mau dijalankan (dalam sebuah list)
+    retval = temp_list
 
     # Kalau tidak, kembalikan saja nilai st dari cj tersebut dalam sebuah list
-    else:
-        retval = [ST[CJ.index(min_c)]]
+    """ else:
+        retval = [ST[CJ.index(min_c)]] """
         
     # d. Melakukan indexing terhadap jadwal yang ada dan telah selesai
     print("retval?", retval)
+    print("cek cj st 1", CJ, ST)
     job = []
     instance = []
     machine = []
@@ -177,7 +175,7 @@ def do_genetic_algo():
     print("job_on_st", job_on_ST)
     for value in job:
         i = job_on_ST.index(value)
-        print("i", i)
+        # print("i", i)
         SCHEDULE.append([ST[i][0], ST[i][1], ST[i][2], CJ[i], RJ[i]])
         if ST[i][1] == len(ROUTING[ST[i][0] - 1]):
             JOB_DONE.append([ST[i][0], RJ[i]])
@@ -186,6 +184,9 @@ def do_genetic_algo():
     index_job = [job_on_ST.index(value) for value in job]
     index_mac = machine
     
+    print("idx_job", index_job)
+    print("cek cj st 2", CJ, ST)
+    
     # f. Melakukan penyalinan nilai st dan cj untuk digunakan lebih lanjut pada bagian bawah
     COPY_OF_ST = [i for i in ST]
     COPY_OF_CJ = [i for i in CJ]
@@ -193,21 +194,28 @@ def do_genetic_algo():
     # g. Melakukan perubahan terhadap nilai isi mesin, tj dan st
     # bias untuk membantu skema penghapusan berdasar indeks
     bias = 0
-    for i, j in zip(index_job, index_mac):
+    for i in range (len(index_job)):
+        k = index_job[i]
+        print(k)
         # Memperbaharui nilai MESIN
         # MESIN[0][j] = RJ[i]
         try:
             # Memperbaharui nilai tj
-            TJ[i] = PROCESSING_TIME[ST[i][0] - 1][ST[i][1]]
+            print("untuk index i", k, ST[k][0] - 1, ST[k][1])
+            TJ[k] = PROCESSING_TIME[ST[k][0] - 1][ST[k][1] - 1]
+            print("TJ", TJ)
             # Memperbaharui nilai st
-            ST[i] = [ST[i][0], ST[i][1] + 1, ROUTING[ST[i][0] - 1][ST[i][1]]]
+            ST[k] = [ST[k][0], ST[k][1] + 1, ROUTING[ST[k][0] - 1][ST[k][1]]]
+            print("ST", ST)
+            print(k, "LEWAT")
         except:
             # Exception handling jika tidak ada, maka saatnya dihapus
-            TJ.pop(i - bias)
-            ST.pop(i - bias)
-            CJ.pop(i - bias)
+            TJ.pop(k - bias)
+            ST.pop(k - bias)
+            CJ.pop(k - bias)
             bias += 1
 
+    print("cek cj st 3", CJ, COPY_OF_CJ, ST)
     # h. Memperbaharui nilai cj pada COPY_OF_CJ (salinan cj)
     for i in range(len(COPY_OF_ST)):
         try:
@@ -231,6 +239,8 @@ def do_genetic_algo():
             # Exception handling, skip jika tidak memenuhi kondisi diatas
             continue
         
+    print("cek cj st 4", CJ, COPY_OF_CJ, ST)
+        
     # i. Pembahruan terhadap nilai cj berdasar pemrosesan COPY_OF_CJ dan COPY_OF_ST
     # dilakukan hanya jika panjang keduanya sudah beda (akibat proses penghapusan)
     if (len(CJ) < len(COPY_OF_CJ)):
@@ -240,6 +250,8 @@ def do_genetic_algo():
                 COPY_OF_CJ.pop(i)
             else :
                 continue
+            
+    print("cek cj st 5", CJ, COPY_OF_CJ, ST)
     
     # Penyalinan kembali nilai cj yang telah diperbaharui
     CJ = COPY_OF_CJ
