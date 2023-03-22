@@ -80,110 +80,103 @@ def read_data():
 def do_genetic_algo(count):
     # xx. Menggunakan variabel global
     global MESIN, JOB_DONE, SCHEDULE, CJ, TJ, RJ, ST
-
-    # a. Mengambil nilai cj terkecil dari data masukan, job dengan cj terkecil akan diproses duluan
-    # min_c = min(CJ)
     
-    # b. Inisiasi senarai temporari
+    # a. Inisiasi senarai temporari
     temp_list = []
     
-    # c. Kalau misal ada lebih dari 1 yang punya nilai minimum, digunakan skema penanganan
-    # if CJ.count(min_c) > 1:
-    # Inisiasi senarai yang berisi semua job dengan nilai min_c
+    # b. Melakukan pendataan index dari CJ untuk diproses lebih lanjut
     index_c_in_cj = [i for i in range(len(CJ))]
 
-    # Cek nilai rj dan pilih yang mempunyai nilai rj terkecil
-    # Prioritaskan yang jumlah operasinya masih banyak
+    # c. Deklarasi senarai mesin sebagai penampung daftar mesin yang akan digunakan
     machine_list = []  # machine list
 
-    # Isi list dengan semua data yang ada di index_c_in_cj
+    # d. Lakukan penyalinan nilai CJ pada COPY_OF_CJ 
+    # sehingga nilainya tidak berubah setelah pemrosesan
     COPY_OF_CJ = [i for i in CJ]
+    
+    # Mengisi index mesin dengan nilai ST[i][2]
     for i in index_c_in_cj :
         machine_list.append(ST[i][2])
-        
+    
+    # e. Lakukan pemrosesan terhadap nilai semua index pada COPY_OF_CJ, ST, dan MESIN
     for i in index_c_in_cj:
-        print("berapa i?",i)
-        index_mac = machine_list.index(ST[i][2])
         job = ST[i][0]
         # Kalo mesinnya kosong, atau bisa selesai lebih cepat, masukin di
         # tempat yang memungkinkan, proses genetikasi
+        # Mesin 1-4 bisa kerja paralel, jadi bisa switch
         if (ST[i][2] >= 1 and ST[i][2] <= 4):
-            # print("ehsini1")
+            # Menerima nilai minimum dari setiap mesin pada rentang 1-4
             minimum = MESIN[0][0]
             idx_mesin = 0
             for j in range (4):
                 if (minimum > MESIN[0][j]):
                     idx_mesin = j
                     minimum = MESIN[0][j]
-                    
-            if (MESIN[0][ST[i][2] - 1] > minimum):
-                print("sini1")
-                ST[job-1] = [job, ST[job-1][1], idx_mesin + 1]
-                hinggap = idx_mesin + 1
-                temp_list.append(ST[i])
-            else :
-                print("sini2")
-                hinggap = ST[i][2]
-                temp_list.append(ST[i])
             
-            # Pemrosesan mesin ?
+            # Jika ternyata lebih efektif di mesin lain, switch ke mesin tersebut
+            if (MESIN[0][ST[i][2] - 1] > minimum):
+                ST[job-1] = [job, ST[job-1][1], idx_mesin + 1]      # Ubah nilai ST
+                hinggap = idx_mesin + 1                             # Inisiasi nilai pembanding
+                temp_list.append(ST[i])                             # Masukkan dalam senarai solusi
+            # Jika ternyata tidak, maka 
+            else :
+                hinggap = ST[i][2]          # Inisialisasi nilai pembanding
+                temp_list.append(ST[i])     # Langsung saja masukkan pada senarai solusi
+            
+            # Selanjutnya pemrosesan terhadap nilai mesin
+            # Jika ini bukan pemrosesan pertama, lakukan perbandingan antara panjang job sebelumnya
+            # dengan nilai kesediaan mesin yang akan dihinggapi/diswitch
             if (count > 1):
-                nums1 = CJ[i]
-                nums2 = MESIN[0][hinggap - 1]
-                print("cek berapa sih?", nums1, nums2)
+                nums1 = CJ[i]                   # Nilai job sebelumnya
+                nums2 = MESIN[0][hinggap - 1]   # Nilai kesediaan mesin
+                # Untuk setiap nilai yang lebih besar
                 if nums1 > nums2:
-                    MESIN[0][ST[i][2] - 1] = nums1
+                    # Lakukan pengubahan nilai mesin menjadi yang terbesar
+                    MESIN[0][ST[i][2] - 1] = nums1 
+                    # Menambahkan nilai mesin dengan waktu permosesan                                  
                     MESIN[0][ST[i][2] - 1] += PROCESSING_TIME[job - 1][ST[i][1] - 1]
+                    # Mengubah nilai COPY_OF_CJ dengan nilai terbesar yang didefinisikan
                     COPY_OF_CJ[i] = nums1
+                # Hal yang sama juga dilakukan jika komponen yang lebih besar adalah nilai yang lain
                 else :
                     MESIN[0][ST[i][2] - 1] = nums2
                     MESIN[0][ST[i][2] - 1] += PROCESSING_TIME[job - 1][ST[i][1] - 1]
                     COPY_OF_CJ[i] = nums2
+            # Akan tetapi jika ini adalah putaran pertama
+            # Maka cukup tambahkan nilai mesin saja
             else :
                 nums1 = CJ[i]
                 nums2 = MESIN[0][hinggap - 1]
-                print("cek berapa sih init?", nums1, nums2)
                 MESIN[0][ST[i][2] - 1] += PROCESSING_TIME[job - 1][ST[i][1] - 1]
                 if nums1 < nums2:
                     COPY_OF_CJ[i] = nums1
                 else :
                     COPY_OF_CJ[i] = nums2
-                
-            print ("ST, MESIN", ST, MESIN)
-            print ("COPY CJ", COPY_OF_CJ)
-            
+        
+        # Mesin 5-6 adalah mesin yang sama
+        # Maka dapat menerapkan skema yang sama seperti mesin 1-4 diatas    
         elif (ST[i][2] >= 5 and ST[i][2] <= 6):
+            # Section penentuan mesin yang lebih efektif
             minimum = MESIN[0][4]
             idx_mesin = 4
             for j in range (4, 5):
                 if (minimum > MESIN[0][j]):
                     idx_mesin = j
                     minimum = MESIN[0][j]
-                    
+            
+            # Jika ternyata lebih efektif di mesin lain, switch ke mesin tersebut      
             if (MESIN[0][ST[i][2] - 1] > minimum):
-                print("sini3")
                 ST[i] = [job, ST[i][1], idx_mesin + 1]
                 hinggap = idx_mesin + 1
                 temp_list.append(ST[i])
             else :
-                print("sini4")
                 hinggap = ST[i][2]
                 temp_list.append(ST[i])
             
-            # Pemrosesan mesin ?
-            # nums1 = PROCESSING_TIME[job - 1][ST[i][1] - 1]
-            """ nums1 = CJ[i]
-            # nums2 = RJ[i] nums2 harusnya diisi waktu finish dari mesin sebelumnya
-            nums2 = MESIN[0][hinggap] # waktu mesin sebelumnya yang mau dihinggapin
-            if nums1 > nums2:
-                MESIN[0][ST[i][2] - 1] += nums1
-            else :
-                MESIN[0][ST[i][2] - 1] += nums2 """
-                
+            # Pemrosesan terhadap nilai mesin
             if (count > 1):
                 nums1 = CJ[i]
                 nums2 = MESIN[0][hinggap - 1]
-                print("cek berapa sih?", nums1, nums2)
                 if nums1 > nums2:
                     MESIN[0][ST[i][2] - 1] = nums1
                     MESIN[0][ST[i][2] - 1] += PROCESSING_TIME[job - 1][ST[i][1] - 1]
@@ -195,36 +188,21 @@ def do_genetic_algo(count):
             else :
                 nums1 = CJ[i]
                 nums2 = MESIN[0][hinggap - 1]
-                print("cek berapa sih init?", nums1, nums2)
                 MESIN[0][ST[i][2] - 1] += PROCESSING_TIME[job - 1][ST[i][1] - 1]
                 if nums1 < nums2:
                     COPY_OF_CJ[i] = nums1
                 else :
                     COPY_OF_CJ[i] = nums2
-                
-            print ("ST, MESIN", ST, MESIN)
-            print ("COPY CJ", COPY_OF_CJ)
-            
-        else :
-            """ # Prioritas nilai rj
-            if (RJ[i] < RJ[ST.index(temp_list[index_mac])]):
-                temp_list[index_mac] = ST[i]
-            # Prioritas jumlah operasi
-            elif ST[i][1] < temp_list[index_mac][1]:
-                temp_list[index_mac] = ST[i] """
-                
+        
+        # Karena mesin 7 berbeda sendiri, lakukan pemrosesan secara normal
+        else :                
             temp_list.append(ST[i])
                 
-    # Sekarang temp_list isinya job yang mau dijalankan (dalam sebuah list)
+    # Sekarang temp_list isinya job yang mau dijalankan (dalam sebuah senarai)
     retval = temp_list
-
-    # Kalau tidak, kembalikan saja nilai st dari cj tersebut dalam sebuah list
-    """ else:
-        retval = [ST[CJ.index(min_c)]] """
         
-    # d. Melakukan indexing terhadap jadwal yang ada dan telah selesai
-    print("retval?", retval)
-    print("cek cj st 1", CJ, COPY_OF_CJ, ST)
+    # f. Melakukan indexing terhadap jadwal yang ada pada retval
+    # Khususnya terhadap senarai job, instance, dan mesin
     job = []
     instance = []
     machine = []
@@ -233,50 +211,21 @@ def do_genetic_algo(count):
         instance.append(retval[i][1])
         machine.append(retval[i][2])
         
-    print("job, mach", job, machine)
+    # Melakukan pengisian senarai job_on_ST berdasar semua nilai job pada ST
     job_on_ST = []
-    # print("ST", ST)
     for i in range (len(ST)):
         job_on_ST.append(ST[i][0])
     
-    # e. Lanjutan pemrosesan indexing untuk dikemas dalam senarai job dan machine
+    # g. Pendefinisian index_job berdasar nilai setiap elemen pada job_on_ST pada job
     index_job = [job_on_ST.index(value) for value in job]
-    index_mac = machine
     
-    # ngubah nilai copynya dulu
-    """ for i in range(len(ST)):
-        try:
-            # Jika nilai iterator berada pada index_job,
-            # maka update dengan nilai data proses selanjutnya, lakukan perbandingan dengan
-            # nilai proses pada mesin
-            if i in index_job:
-                ready_time = MESIN[0][ST[i][2] - 1]
-                recent_cj = CJ[i]
-                # if ST[i][1] != len(ROUTING[ST[i][0] - 1]):
-                if ready_time > recent_cj:
-                    COPY_OF_CJ[i] = ready_time
-                else :
-                    COPY_OF_CJ[i] = recent_cj
-        except:
-            # Exception handling, skip jika tidak memenuhi kondisi diatas
-            continue """
-    
-    # ngubah nilai cj
+    # h. Mengubah nilai CJ sebelum dimasukkan pada daftar SCHEDULE
     for i in range(len(ST)):
         try:
             # Jika nilai iterator berada pada index_job,
-            # maka update dengan nilai data proses selanjutnya, lakukan perbandingan dengan
-            # nilai proses pada mesin
+            # maka update dengan nilai CJ dengan nilai COPY_OF_CJ yang telah dimodifikasi
+            # dengan nilai TJ yang telah dideklarasikan di awal oleh setiap proses pada mesin
             if i in index_job:
-                ready_time = MESIN[0][ST[i][2] - 1]
-                recent_rjx = RJ[i]
-                # if ST[i][1] != len(ROUTING[ST[i][0] - 1]):
-                """ if (count > 1):
-                    if ready_time > recent_rjx:
-                        CJ[i] = ready_time
-                    else :
-                        CJ[i] = recent_rjx
-                else : """
                 CJ[i] = COPY_OF_CJ[i] + TJ[i]
             # Jika tidak ada, lakukan pembaharuan dengan nilai yang ada di mesin
             # Mengingat tidak ada job yang saling overlap
@@ -287,108 +236,45 @@ def do_genetic_algo(count):
             # Exception handling, skip jika tidak memenuhi kondisi diatas
             continue
         
-    print("job_on_st", job_on_ST)
-    print("cek cj st 2", CJ, COPY_OF_CJ, ST)
+    # i. Memasukkan semua proses diatas ke SCHEDULE
     for value in job:
         i = job_on_ST.index(value)
-        # print("i", i)
         SCHEDULE.append([ST[i][0], ST[i][1], ST[i][2], COPY_OF_CJ[i], CJ[i]])
+        # Jika sudah tidak ada lagi instance pada job tersebut
+        # Maka masukkan pada senarai JOB_DONE
         if ST[i][1] == len(ROUTING[ST[i][0] - 1]):
             JOB_DONE.append([ST[i][0], RJ[i]])
-            
-    print("intip sched", SCHEDULE)
-
-    # e. Lanjutan pemrosesan indexing untuk dikemas dalam senarai job dan machine
-    """ index_job = [job_on_ST.index(value) for value in job]
-    index_mac = machine """
     
-    print("idx_job", index_job)
-    
-    # f. Melakukan penyalinan nilai st dan cj untuk digunakan lebih lanjut pada bagian bawah
-    COPY_OF_ST = [i for i in ST]
-    # COPY_OF_CJ = [i for i in CJ]
-    
-    # g. Melakukan perubahan terhadap nilai isi mesin, tj dan st
-    # bias untuk membantu skema penghapusan berdasar indeks
-    list_ga_lewat = []
+    # j. Melakukan perubahan terhadap nilai isi MESIN, TJ, dan ST
+    list_tidak_lewat = []      
     for i in index_job:
-        print(i)
-        # Memperbaharui nilai MESIN
-        # MESIN[0][j] = RJ[i]
-        # try:
-        # Memperbaharui nilai tj
-        print("untuk index i", i, ST[i][0] - 1, ST[i][1])
+        # Memperbaharui nilai TJ di setiap index_job
+        # Jika nilai TJ masih bisa diupdate, update
         if (ST[i][1] < len(PROCESSING_TIME[ST[i][0] - 1])) :
             TJ[i] = PROCESSING_TIME[ST[i][0] - 1][ST[i][1]]
-            print("TJ", TJ)
+        # Jika tidak, maka masukkan indeks pada senarai tidak lewat
         else :
-            list_ga_lewat.append(i)
-            print("galewatt")
-        # Memperbaharui nilai st
+            list_tidak_lewat.append(i)
+
+        # Memperbaharui nilai ST di setiap index_job
         if (ST[i][1] < len(ROUTING[ST[i][0] - 1])) :
             ST[i] = [ST[i][0], ST[i][1] + 1, ROUTING[ST[i][0] - 1][ST[i][1]]]
-            print("ST", ST)
-        else :
-            print("galewatt")
-        print(i, "LEWAT")
     
+    # k. Menghapus elemen yang sudah tidak ada di dalam TJ, ST, dan TJ
+    # bias untuk membantu skema penghapusan berdasar indeks
     bias = 0   
-    for i in list_ga_lewat:
-        print(i)
+    for i in list_tidak_lewat:
         TJ.pop(i - bias)
         ST.pop(i - bias)
         CJ.pop(i - bias)
         bias += 1
-
-    print("cek cj st 3", CJ, COPY_OF_CJ, ST)
-    # h. Memperbaharui nilai cj pada COPY_OF_CJ (salinan cj)
-    """ for i in range(len(COPY_OF_ST)):
-        try:
-            # Jika nilai iterator berada pada index_job,
-            # maka update dengan nilai data proses selanjutnya, lakukan perbandingan dengan
-            # nilai proses pada mesin
-            if i in index_job:
-                ready_time = MESIN[0][ST[i][2] - 1]
-                recent_rjx = RJ[i]
-                if COPY_OF_ST[i][1] != len(ROUTING[COPY_OF_ST[i][0] - 1]):
-                    if ready_time > recent_rjx:
-                        COPY_OF_CJ[i] = ready_time
-                    else :
-                        COPY_OF_CJ[i] = recent_rjx
-            # Jika tidak ada, lakukan pembaharuan dengan nilai yang ada di mesin
-            # Mengingat tidak ada job yang saling overlap
-            else :
-                if (COPY_OF_CJ[i] <= MESIN[0][COPY_OF_ST[i][2] - 1]):
-                    COPY_OF_CJ[i] = MESIN[0][COPY_OF_ST[i][2] - 1]
-        except:
-            # Exception handling, skip jika tidak memenuhi kondisi diatas
-            continue """
-        
-    print("cek cj st 4", CJ, COPY_OF_CJ, ST)
-        
-    # i. Pembahruan terhadap nilai cj berdasar pemrosesan COPY_OF_CJ dan COPY_OF_ST
-    # dilakukan hanya jika panjang keduanya sudah beda (akibat proses penghapusan)
-    if (len(CJ) < len(COPY_OF_CJ)):
-        for i in range(len(COPY_OF_CJ) - 1, -1, -1):
-            # Proses penyesuaian dengan cj yang sudah baru dengan menghapus
-            if i in index_job and COPY_OF_ST[i][1] == len(ROUTING[COPY_OF_ST[i][0] - 1]):
-                COPY_OF_CJ.pop(i)
-            else :
-                continue
-            
-    print("cek cj st 5", CJ, COPY_OF_CJ, ST)
     
-    # Penyalinan kembali nilai cj yang telah diperbaharui
-    # CJ = COPY_OF_CJ
-    
-    print("fin cj", CJ)
-    
-    # j. Pembaharuan terhadap nilai rj
+    # l. Pembaharuan terhadap nilai RJ
     RJ = [0 for i in range(len(ST))]
     for i in range (len(ST)):
         RJ[i] = CJ[i] + TJ[i]           
 
-    # k. Pengembalian nilai ST apakah sudah kosong (semua job sudah diproses)
+    # m. Pengembalian nilai ST apakah sudah kosong (semua job sudah diproses)
     return ST
 
 # 5. Melakukan pencetakan form hasil pemrosesan ke terminal
@@ -426,33 +312,13 @@ if __name__ == '__main__':
 
     # e. Melakukan pemrosesan pembuatan jadwal
     # Proses selesai dilaksanakan jika semua job selesai terjadwal
-    print("Pemrosesan sedang dilakukan...")
-    print("===== initial check ======")
-    print("mesin ", MESIN)
-    print("processing_time ", PROCESSING_TIME)
-    print("routing ", ROUTING)
-    print("CJ", CJ)
-    print("TJ", TJ)
-    print("RJ", RJ)
-    print("ST", ST)
-    print("----lesgo-----")
-    count = 1
+    count = 1  # Instansiasi untuk menunjukkan jumlah iterasi yang telah dilakukan
     while do_genetic_algo(count) != []:
-        print("===== initial check ======")
-        print("mesin ", MESIN)
-        print("processing_time ", PROCESSING_TIME)
-        print("routing ", ROUTING)
-        print("CJ", CJ)
-        print("TJ", TJ)
-        print("RJ", RJ)
-        print("ST", ST)
         count += 1
-        print("----lesgo-----")
         pass
     
     # f. Semua job seledai dan hasil dicetak pada terminal
     print('\n---- Semua job telah selesai ----')
     print_schedule()
     
-
 input("\nPress Enter to Exit")
