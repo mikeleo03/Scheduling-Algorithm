@@ -13,10 +13,14 @@ MESIN = []
 # 3. Prosedur untuk melakukan pembacaan data dari file
 def read_data():
     global SCHEDULE, ROUTING, PROCESSING_TIME, MESIN, DUE_DATES
+    print("============   PEMILIHAN FOLDER   ============")
+    folder = input("Masukkan nama folder yang akan dianalisis\n>> ")
+    print("\n=============   PEMBACAAN DATA   =============")
     print("Sedang membaca data...")
     
     try:
-        schedule_file = open("test2/Jadwal.txt", "r")
+        file = folder + "/Jadwal.txt"
+        schedule_file = open(file, "r")
     except:
         print("File Jadwal.txt tidak ditemukan!")
         exit()
@@ -31,7 +35,8 @@ def read_data():
         SCHEDULE.append(row)
 
     try:
-        due_date_file = open("test2/Due_Dates.txt", "r")
+        file = folder + "/Due_Dates.txt"
+        due_date_file = open(file, "r")
     except:
         print("File Due_Dates.txt tidak ditemukan!")
         exit()
@@ -48,7 +53,8 @@ def read_data():
     n_jobs = max(SCHEDULE, key=lambda x: x[0])[0] + 1
     for j in range(n_jobs):
         try:
-            time_file = open(f"test2/Job{j + 1}_Time.txt", "r")
+            file = folder + f"/Job{j + 1}_Time.txt"
+            time_file = open(file, "r")
         except:
             print(f"File Job{j + 1}_Time.txt tidak ditemukan!")
             exit()
@@ -62,7 +68,8 @@ def read_data():
             PROCESSING_TIME.append(row)
 
         try:
-            routing_file = open(f"test2/Job{j + 1}_Routing.txt", "r")
+            file = folder + f"/Job{j + 1}_Routing.txt"
+            routing_file = open(file, "r")
         except:
             print(f"File Job{j + 1}_Routing.txt tidak ditemukan!")
             exit()
@@ -76,7 +83,8 @@ def read_data():
             ROUTING.append(row)
             
     try:
-        mesin_file = open(f"test2/Mesin.txt", "r")
+        file = folder + "/Mesin.txt"
+        mesin_file = open(file, "r")
     except:
         print(f"File Mesin.txt tidak ditemukan!")
         exit()
@@ -412,7 +420,8 @@ def print_results(iterations, due_dates):
     
     on_time = list(filter(lambda a: is_all_on_time(a[1]), enumerate(lateness)))
 
-    print("\n---- HASIL SESUAI DUE DATE ----")
+    print("\n============   HASIL PEMROSESAN   ============")
+    print("Berikut adalah hasil pemrosesan alternatif penyusunan jadwal :")
     for i in range(len(on_time)):
         print(f'\n---- Alternatif {i + 1} (Skenario {on_time[i][0]}) ----')
         print_schedule(iterations[on_time[i][0]][0], on_time[i][1])
@@ -427,7 +436,8 @@ def print_results(iterations, due_dates):
 if __name__ == '__main__':
     read_data()
     print("Data telah dibaca!")
+    print("\nPemrosesan sedang dilakukan...")
     iterations = insert_job()
     print_results(iterations, DUE_DATES)
 
-input("Press Enter to Exit")
+input("\nTekan Enter untuk keluar dari program")

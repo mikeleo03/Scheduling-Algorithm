@@ -13,11 +13,15 @@ SCHEDULE = []
 def read_data():
     # Menggunakan variabel global
     global ROUTING, PROCESSING_TIME, MESIN
+    print("============   PEMILIHAN FOLDER   ============")
+    folder = input("Masukkan nama folder yang akan dianalisis\n>> ")
+    print("\n=============   PEMBACAAN DATA   =============")
     print("Sedang membaca data...")
 
     # Pembacaan data mesin dari file dan exception handling
     try:
-        mesin_file = open(f"test3/Mesin.txt", "r")
+        file = folder + "/Mesin.txt"
+        mesin_file = open(file, "r")
     except:
         print(f"File Mesin.txt tidak ditemukan!")
         exit()
@@ -40,7 +44,8 @@ def read_data():
     for j in range(n_jobs):
         # Exception handling  
         try:
-            time_file = open(f"test3/Job{j + 1}_Time.txt", "r")
+            file = folder + f"/Job{j + 1}_Time.txt"
+            time_file = open(file, "r")
         except:
             print(f"File Job{j + 1}_Time.txt tidak ditemukan!")
             exit()
@@ -58,7 +63,8 @@ def read_data():
 
         # Exception handling 
         try:
-            routing_file = open(f"test3/Job{j + 1}_Routing.txt", "r")
+            file = folder + f"/Job{j + 1}_Routing.txt"
+            routing_file = open(file, "r")
         except:
             print(f"File Job{j + 1}_Routing.txt tidak ditemukan!")
             exit()
@@ -312,13 +318,15 @@ if __name__ == '__main__':
 
     # e. Melakukan pemrosesan pembuatan jadwal
     # Proses selesai dilaksanakan jika semua job selesai terjadwal
+    print("\nPemrosesan sedang dilakukan...")
     count = 1  # Instansiasi untuk menunjukkan jumlah iterasi yang telah dilakukan
     while do_genetic_algo(count) != []:
         count += 1
         pass
     
     # f. Semua job seledai dan hasil dicetak pada terminal
-    print('\n---- Semua job telah selesai ----')
+    print("\n============   HASIL PEMROSESAN   ============")
+    print("Berikut adalah hasil pemrosesan penyusunan jadwal :\n")
     print_schedule()
     
-input("\nPress Enter to Exit")
+input("\nTekan Enter untuk keluar dari program")
