@@ -8,13 +8,17 @@ PROCESSING_TIME = []
 MESIN = []
 JOB_DONE = []
 SCHEDULE = []
+CJ = []
+TJ = []
+RJ = []
+ST = []
 
 # 3. Prosedur untuk melakukan pembacaan data dari file
 def read_data():
     # Menggunakan variabel global
-    global ROUTING, PROCESSING_TIME, MESIN
+    global ROUTING, PROCESSING_TIME, MESIN, CJ, TJ, RJ, ST
     print("============   PEMILIHAN FOLDER   ============")
-    folder = input("Masukkan nama folder yang akan dianalisis\n>> ")
+    folder = input("Masukkan nama folder yang akan dianalisis\n[Gunakan test1, test2, dan test3 sebagai contoh]\n>> ")
     print("\n=============   PEMBACAAN DATA   =============")
     print("Sedang membaca data...")
 
@@ -81,6 +85,23 @@ def read_data():
             ROUTING.append(row)
             
     print("Data time dan routing berhasil dibaca!")
+    
+    # Pendefinisian kondisi awal
+    # a. Mendefinisikan posisi melalui routing
+    CJ = [MESIN[0][ROUTING[i][0] - 1] for i in range(len(ROUTING))]
+    
+    # b. Mendefinisikan waktu pemrosesan
+    TJ = [PROCESSING_TIME[i][0] for i in range(len(ROUTING))]
+    
+    # c. Mendefinisikan waktu berakhir
+    RJ = [0 for i in range(len(ROUTING))]
+    for i in range (len(ROUTING)):
+        RJ[i] = CJ[i] + TJ[i]
+        
+    # d. Mendefinisikan id st (job, operasi, mesin)
+    ST = [[i + 1, 1, ROUTING[i][0]] for i in range(len(ROUTING))]
+    
+    print("Kondisi awal pemrosesan telah siap diproses")
     
 # 4. Prosedur Eksekusi
 def state_check():
@@ -217,33 +238,19 @@ def print_schedule(schedule=SCHEDULE, lateness=None):
     print(f'---\nmakespan: {round(makespan,2)}')
 
 # 6. Program utama
-if __name__ == '__main__':
+def main():
     # xx. Membaca data
     read_data()
-    
-    # a. Mendefinisikan posisi melalui routing
-    CJ = [MESIN[0][ROUTING[i][0] - 1] for i in range(len(ROUTING))]
-    
-    # b. Mendefinisikan waktu pemrosesan
-    TJ = [PROCESSING_TIME[i][0] for i in range(len(ROUTING))]
-    
-    # c. Mendefinisikan waktu berakhir
-    RJ = [0 for i in range(len(ROUTING))]
-    for i in range (len(ROUTING)):
-        RJ[i] = CJ[i] + TJ[i]
-        
-    # d. Mendefinisikan id st (job, operasi, mesin)
-    ST = [[i + 1, 1, ROUTING[i][0]] for i in range(len(ROUTING))]
 
-    # e. Melakukan pemrosesan pembuatan jadwal
+    # a. Melakukan pemrosesan pembuatan jadwal
     # Proses selesai dilaksanakan jika semua job selesai terjadwal
     print("\nPemrosesan sedang dilakukan...")
     while state_check() != []:
         pass
     
-    # f. Semua job seledai dan hasil dicetak pada terminal
+    # b. Semua job seledai dan hasil dicetak pada terminal
     print("\n============   HASIL PEMROSESAN   ============")
     print("Berikut adalah hasil pemrosesan penyusunan jadwal :\n")
     print_schedule()
 
-input("\nTekan Enter untuk keluar dari program")
+    input("\nTekan Enter untuk keluar dari program")

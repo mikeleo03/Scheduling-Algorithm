@@ -14,7 +14,7 @@ MESIN = []
 def read_data():
     global SCHEDULE, ROUTING, PROCESSING_TIME, MESIN, DUE_DATES
     print("============   PEMILIHAN FOLDER   ============")
-    folder = input("Masukkan nama folder yang akan dianalisis\n>> ")
+    folder = input("Masukkan nama folder yang akan dianalisis\n[Gunakan test1, test2, dan test3 sebagai contoh]\n>> ")
     print("\n=============   PEMBACAAN DATA   =============")
     print("Sedang membaca data...")
     
@@ -433,11 +433,11 @@ def print_results(iterations, due_dates):
             print_schedule(iterations[i][1][0], lateness[iterations[i][0]])
             
 # 6. Program utama
-if __name__ == '__main__':
+def main():
     read_data()
     print("Data telah dibaca!")
     print("\nPemrosesan sedang dilakukan...")
     iterations = insert_job()
     print_results(iterations, DUE_DATES)
 
-input("\nTekan Enter untuk keluar dari program")
+    input("\nTekan Enter untuk keluar dari program")
