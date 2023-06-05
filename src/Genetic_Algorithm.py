@@ -142,7 +142,7 @@ def do_genetic_algo(count):
             
             # Jika ternyata lebih efektif di mesin lain, switch ke mesin tersebut
             if (MESIN[0][ST[i][2] - 1] > minimum):
-                ST[job-1] = [job, ST[job-1][1], idx_mesin + 1]      # Ubah nilai ST
+                ST[i] = [job, ST[i][1], idx_mesin + 1]      # Ubah nilai ST
                 hinggap = idx_mesin + 1                             # Inisiasi nilai pembanding
                 temp_list.append(ST[i])                             # Masukkan dalam senarai solusi
             # Jika ternyata tidak, maka 
@@ -175,10 +175,7 @@ def do_genetic_algo(count):
                 nums1 = CJ[i]
                 nums2 = MESIN[0][hinggap - 1]
                 MESIN[0][ST[i][2] - 1] += PROCESSING_TIME[job - 1][ST[i][1] - 1]
-                if nums1 < nums2:
-                    COPY_OF_CJ[i] = nums1
-                else :
-                    COPY_OF_CJ[i] = nums2
+                COPY_OF_CJ[i] = nums2
         
         # Mesin 5-6 adalah mesin yang sama
         # Maka dapat menerapkan skema yang sama seperti mesin 1-4 diatas    
@@ -216,10 +213,7 @@ def do_genetic_algo(count):
                 nums1 = CJ[i]
                 nums2 = MESIN[0][hinggap - 1]
                 MESIN[0][ST[i][2] - 1] += PROCESSING_TIME[job - 1][ST[i][1] - 1]
-                if nums1 < nums2:
-                    COPY_OF_CJ[i] = nums1
-                else :
-                    COPY_OF_CJ[i] = nums2
+                COPY_OF_CJ[i] = nums2
         
         # Karena mesin 7 berbeda sendiri, lakukan pemrosesan secara normal
         else :                
